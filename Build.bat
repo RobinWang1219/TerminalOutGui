@@ -5,6 +5,8 @@ call Env.bat
 
 SET WORKING_SPACE=%CD%
 
+ruff format .
+
 pyinstaller --noconfirm --onefile --windowed  ^
               --icon "%WORKING_SPACE%\app_icon.ico" ^
               --add-data "%WORKING_SPACE%\app_icon.png;." ^
