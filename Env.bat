@@ -1,0 +1,2 @@
+set PYTHON_HOME=C:\Python311
+set PATH=%PATH%;%PYTHON_HOME%\Scripts;%PYTHON_HOME%
