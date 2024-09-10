@@ -2,6 +2,7 @@ import serial
 import threading
 import time
 import sys
+import math
 import tkinter as tk
 from tkinter import ttk, messagebox
 from tkinter import PhotoImage
@@ -89,9 +90,8 @@ DEFAULT_ALL_BAUD_RATES_LIST = [
 DEFAULT_LAST_COM_PORT_NUM = ""
 DEFAULT_BUAD_RATE = 115200
 DEFAULT_LOG_PATH = "logs\{COM}_{TIME}.txt"
-# Default read delay time
-DEFAULT_READ_DELAY = 0.001  # 1 millisecond
 DEFAULT_SHOW_TIMESTAMP = False
+DEFAULT_UART_BUFFER_SIZE = 128  # 16 bytes
 
 # Global variables
 ser = None
@@ -103,7 +103,6 @@ gConfig["Settings"] = {
     "last_baud_rate": str(DEFAULT_BUAD_RATE),
     "visible_baud_rates_list": ",".join(map(str, DEFAULT_COMMON_BAUD_RATES_LIST)),
     "log_path": DEFAULT_LOG_PATH,
-    "read_delay": str(DEFAULT_READ_DELAY),
     "show_timestamp": str(DEFAULT_SHOW_TIMESTAMP),
 }
 
@@ -148,12 +147,16 @@ def add_timestamp_to_lines(text):
     return "\n".join(lines_with_timestamp)
 
 
+def format_lines(text):
+    # Split text into lines
+    lines = text.splitlines()
+    # Combine lines back into a single string
+    return "\n".join(lines)
+
 def read_from_port(ser, text_widget, log_path, read_delay):
     save_path = parse_save_path(log_path, ser.port)
     root.title(f"{get_resource_path(save_path)} - {APP_NAME}")
-    with open(
-        save_path, "a", encoding="utf-8"
-    ) as file:  # Use 'a' mode and utf-8 encoding
+    with open(save_path, "a", encoding="utf-8") as file:  # Use 'a' mode and utf-8 encoding
         while ser.is_open:
             try:
                 if ser.in_waiting > 0:
@@ -163,13 +166,15 @@ def read_from_port(ser, text_widget, log_path, read_delay):
                         decoded_data_with_time = add_timestamp_to_lines(decoded_data)
                         text_widget.insert(tk.END, f"{decoded_data_with_time}\n")
                     else:
-                        text_widget.insert(tk.END, f"Received: {decoded_data}\n")
+                        decoded_data_format = format_lines(decoded_data)
+                        # text_widget.insert(tk.END, f"Received: {decoded_data}\n")
+                        text_widget.insert(tk.END, f"{decoded_data}\n")
                     text_widget.see(tk.END)
 
                     if show_time_stamp_var.get():
                         file.write(f"{decoded_data_with_time}")  # Write decoded data
                     else:
-                        file.write(decoded_data)
+                        file.write(decoded_data_format)
 
                     file.flush()
                 time.sleep(read_delay)  # Custom delay time
@@ -220,12 +225,44 @@ def stop_communication():
     stop_button.config(state=tk.DISABLED)
 
 
+def truncate_decimal(value, digits):
+    """
+    Truncate the number to a specified number of decimal places.
+
+    :param value: The number to truncate.
+    :param digits: The number of decimal places to keep.
+    :return: The truncated number.
+    """
+    factor = 10**digits
+    return math.floor(value * factor) / factor
+
+def auto_approximate(value):
+    """
+    Automatically truncate the value to an appropriate precision based on the magnitude.
+
+    :param value: The number to approximate.
+    :return: The approximated number.
+    """
+    if value == 0:
+        return 0
+
+    # Determine the number of decimal places based on the magnitude of the number
+    magnitude = math.floor(math.log10(abs(value)))
+    if magnitude >= 0:
+        precision = 0
+    else:
+        # Adjust to keep a sensible number of decimal places
+        # precision = -magnitude + 1  # keep two digits
+        precision = -magnitude  # Keep one digits
+
+    return truncate_decimal(value, precision)
+
 def on_start():
     try:
         port = com_port_var.get()
         baudrate = int(baud_rate_var.get())
         log_path = save_path_var.get()
-        read_delay = float(read_delay_var.get() or DEFAULT_READ_DELAY)
+        read_delay = auto_approximate(float(DEFAULT_UART_BUFFER_SIZE / baudrate)) # auto calc the interval value
         if port == "":
             messagebox.showerror("Error", "No COM port selected.")
             return
@@ -275,6 +312,9 @@ def toggle_baud_rates():
         # baud_rate_combobox.set(DEFAULT_BUAD_RATE)
         baud_rate_combobox.set(gConfig["Settings"]["last_baud_rate"])
 
+
+def show_right_click_menu(event):
+    right_click_menu.post(event.x_root, event.y_root)
 
 def open_settings():
     global popup
@@ -332,19 +372,12 @@ def open_settings():
     save_path_entry = ttk.Entry(advanced_frame, textvariable=save_path_var, width=30)
     save_path_entry.grid(row=3, column=0, padx=5, pady=0, sticky="w")
 
-    # Read delay input box
-    ttk.Label(advanced_frame, text="Read Delay (seconds):").grid(
-    row=2, column=1, padx=5, pady=0, sticky="w"
-    )
-    read_delay_entry = ttk.Entry(advanced_frame, textvariable=read_delay_var, width=10)
-    read_delay_entry.grid(row=3, column=1, padx=5, pady=0, sticky="w")
-
     # Checkbox option to control log display TimeStamp
     global show_time_stamp_var
     show_timestamp_cb = ttk.Checkbutton(
         advanced_frame, text="Show TimeStamp", variable=show_time_stamp_var
     )
-    show_timestamp_cb.grid(row=4, column=0, padx=5, pady=5, sticky="w")
+    show_timestamp_cb.grid(row=3, column=1, padx=5, pady=5, sticky="w")
 
     # Save and Close button
     save_button = ttk.Button(frame, text="Save & Close", command=save_and_close)
@@ -453,7 +486,6 @@ def update_configs():
     gConfig["Settings"]["last_baud_rate"] = str(baud_rate_var.get())
     # gConfig['Settings']['visible_baud_rates_list']    # manual update by user
     gConfig["Settings"]["log_path"] = save_path_var.get()
-    gConfig["Settings"]["read_delay"] = str(read_delay_var.get())
     gConfig["Settings"]["show_timestamp"] = str(show_time_stamp_var.get())
 
     with open(CONFIG_FILE, "w") as configfile:
@@ -512,13 +544,11 @@ root.geometry(f"{APP_WIDTH}x{APP_HEIGHT}+{center_x}+{center_y}")  # Set default 
 # Global variables
 baud_rate_var = tk.StringVar()
 save_path_var = tk.StringVar()
-read_delay_var = tk.StringVar()
 show_time_stamp_var = tk.BooleanVar()
 
 config = load_configs()
 baud_rate_var.set(config.get("Settings", "last_baud_rate", fallback=str(DEFAULT_BUAD_RATE)))
 save_path_var.set(config.get("Settings", "log_path", fallback=DEFAULT_LOG_PATH))
-read_delay_var.set(config.get("Settings", "read_delay", fallback=str(DEFAULT_READ_DELAY)))
 show_time_stamp_var.set(
     config.get("Settings", "show_timestamp", fallback=str(DEFAULT_SHOW_TIMESTAMP))
 )
@@ -578,6 +608,11 @@ stop_button.config(state=tk.DISABLED)  # Disabled by default, enabled after star
 # Message output area
 text_widget = tk.Text(root, height=15, width=50, wrap="none")
 text_widget.grid(row=1, column=0, columnspan=4, padx=5, pady=5, sticky="nsew")
+
+# Right Click Menu
+right_click_menu = tk.Menu(root, tearoff=0)
+right_click_menu.add_command(label="Clear Screen", command=lambda: text_widget.delete("1.0", "end"))
+text_widget.bind("<Button-3>", show_right_click_menu)
 
 # Set scrollbars
 x_scroll = tk.Scrollbar(root, orient=tk.HORIZONTAL, command=text_widget.xview)
