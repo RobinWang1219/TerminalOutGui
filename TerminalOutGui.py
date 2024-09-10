@@ -380,7 +380,7 @@ def about_app():
     frame.grid(row=0, column=0, sticky="nsew")
 
     # Load and resize image
-    original_image = Image.open(get_resource_path("app_icon.png"))
+    original_image = Image.open(get_resource_path("app_icon.ico"))
     resized_image = original_image.resize((80, 80))  # Resize image to 80x80 pixels
     icon = ImageTk.PhotoImage(resized_image)
 
@@ -511,8 +511,13 @@ def on_popup_focus(event):
 root = tk.Tk()
 root.title(f"{APP_NAME}")
 # Use PhotoImage to load a PNG file
-icon = tk.PhotoImage(file=get_resource_path("app_icon.png"))
-root.iconphoto(True, icon)  # Set window icon
+# icon = tk.PhotoImage(file=get_resource_path("app_icon.png"))
+# root.iconphoto(True, icon)  # Set window icon
+
+img = Image.open(get_resource_path("app_icon.ico"))
+icon = ImageTk.PhotoImage(img)
+root.tk.call("wm", "iconphoto", root._w, icon)
+
 center_x = int(root.winfo_screenwidth() / 2 - APP_WIDTH / 2)
 center_y = int(root.winfo_screenheight() / 2 - APP_HEIGHT / 2)
 root.geometry(
