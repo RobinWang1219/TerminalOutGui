@@ -18,7 +18,7 @@ APP_VERSION = "v1.0.0.1"
 BUILD_DATE_TIME = "2024-08-07 22:24:00"  # Manually set build date and time
 
 AUTHOR_INFO = "HAO-HSIANG, WANG"
-APP_HOME_URL = "https://www.example.com"
+APP_HOME_URL = "https://github.com/RobinWang1219/TerminalOutGui"
 DONATE_URL = "https://www.paypal.com/ncp/payment/H3RW4JSG8UX68"
 
 MIT_LICENSE = """
