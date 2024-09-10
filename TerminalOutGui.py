@@ -153,6 +153,7 @@ def format_lines(text):
     # Combine lines back into a single string
     return "\n".join(lines)
 
+
 def read_from_port(ser, text_widget, log_path, read_delay):
     save_path = parse_save_path(log_path, ser.port)
     root.title(f"{get_resource_path(save_path)} - {APP_NAME}")
@@ -236,6 +237,7 @@ def truncate_decimal(value, digits):
     factor = 10**digits
     return math.floor(value * factor) / factor
 
+
 def auto_approximate(value):
     """
     Automatically truncate the value to an appropriate precision based on the magnitude.
@@ -257,12 +259,14 @@ def auto_approximate(value):
 
     return truncate_decimal(value, precision)
 
+
 def on_start():
     try:
         port = com_port_var.get()
         baudrate = int(baud_rate_var.get())
         log_path = save_path_var.get()
-        read_delay = auto_approximate(float(DEFAULT_UART_BUFFER_SIZE / baudrate)) # auto calc the interval value
+        # auto calc the interval value
+        read_delay = auto_approximate(float(DEFAULT_UART_BUFFER_SIZE / baudrate))
         if port == "":
             messagebox.showerror("Error", "No COM port selected.")
             return
@@ -315,6 +319,7 @@ def toggle_baud_rates():
 
 def show_right_click_menu(event):
     right_click_menu.post(event.x_root, event.y_root)
+
 
 def open_settings():
     global popup
