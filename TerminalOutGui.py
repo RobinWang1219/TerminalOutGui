@@ -622,12 +622,12 @@ x_scroll.grid(row=2, column=0, columnspan=4, padx=5, pady=5, sticky="ew")
 y_scroll.grid(row=1, column=4, padx=5, pady=5, sticky="ns")
 
 # Input field
-input_field = ttk.Entry(root)
-input_field.grid(row=3, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
+# input_field = ttk.Entry(root)
+# input_field.grid(row=3, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
 
 # Send button
-send_button = ttk.Button(root, text="Send", command=send_message)
-send_button.grid(row=3, column=3, padx=5, pady=5, sticky="ew")
+# send_button = ttk.Button(root, text="Send", command=send_message)
+# send_button.grid(row=3, column=3, padx=5, pady=5, sticky="ew")
 
 # Make the window auto-adjust
 root.grid_rowconfigure(1, weight=1)
