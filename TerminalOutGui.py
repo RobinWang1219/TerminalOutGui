@@ -300,9 +300,7 @@ def open_settings():
     general_frame = ttk.LabelFrame(frame, text="General Settings", padding=(5, 5))
     general_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="nsew")
 
-    ttk.Label(general_frame, text="Baud Rate:").grid(
-        row=0, column=0, padx=5, pady=0, sticky="w"
-    )
+    ttk.Label(general_frame, text="Baud Rate:").grid(row=0, column=0, padx=5, pady=0, sticky="w")
     global baud_rate_combobox
     # baud_rate_combobox = ttk.Combobox(general_frame, textvariable=baud_rate_var, values=DEFAULT_COMMON_BAUD_RATES_LIST, state="readonly", width=27)
     baud_rate_combobox = ttk.Combobox(
@@ -330,15 +328,13 @@ def open_settings():
     advanced_frame.grid(row=2, column=0, columnspan=2, padx=10, pady=5, sticky="nsew")
 
     # Save path input box
-    ttk.Label(advanced_frame, text="Save Path:").grid(
-        row=2, column=0, padx=5, pady=0, sticky="w"
-    )
+    ttk.Label(advanced_frame, text="Save Path:").grid(row=2, column=0, padx=5, pady=0, sticky="w")
     save_path_entry = ttk.Entry(advanced_frame, textvariable=save_path_var, width=30)
     save_path_entry.grid(row=3, column=0, padx=5, pady=0, sticky="w")
 
     # Read delay input box
     ttk.Label(advanced_frame, text="Read Delay (seconds):").grid(
-        row=2, column=1, padx=5, pady=0, sticky="w"
+    row=2, column=1, padx=5, pady=0, sticky="w"
     )
     read_delay_entry = ttk.Entry(advanced_frame, textvariable=read_delay_var, width=10)
     read_delay_entry.grid(row=3, column=1, padx=5, pady=0, sticky="w")
@@ -394,30 +390,20 @@ def about_app():
     appInfoPadX = 110
     appInfoPadY = 0
     appInfo = ttk.Label(frame, text=f"{APP_NAME} {APP_VERSION}")
-    appInfo.grid(
-        row=0, column=0, columnspan=1, padx=appInfoPadX, pady=appInfoPadY, sticky="w"
-    )
+    appInfo.grid(row=0, column=0, columnspan=1, padx=appInfoPadX, pady=appInfoPadY, sticky="w")
     appInfo = ttk.Label(frame, text=f"Build time: {BUILD_DATE_TIME}")
-    appInfo.grid(
-        row=1, column=0, columnspan=1, padx=appInfoPadX, pady=appInfoPadY, sticky="w"
-    )
+    appInfo.grid(row=1, column=0, columnspan=1, padx=appInfoPadX, pady=appInfoPadY, sticky="w")
     appInfo = ttk.Label(frame, text=f"Author: {AUTHOR_INFO}")
-    appInfo.grid(
-        row=2, column=0, columnspan=1, padx=appInfoPadX, pady=appInfoPadY, sticky="w"
-    )
+    appInfo.grid(row=2, column=0, columnspan=1, padx=appInfoPadX, pady=appInfoPadY, sticky="w")
 
     appWebSite = tk.Label(frame, text=f"Home: ")
     appWebSite.grid(row=3, column=0, columnspan=1, padx=10, pady=5, sticky="w")
     appWebSite = tk.Label(frame, text=f"{APP_HOME_URL}", fg="blue", cursor="hand2")
     appWebSite.grid(row=3, column=0, columnspan=1, padx=50, pady=5, sticky="w")
-    appWebSite.bind(
-        "<Button-1>", lambda e: open_url(APP_HOME_URL)
-    )  # Bind mouse click event
+    appWebSite.bind("<Button-1>", lambda e: open_url(APP_HOME_URL))  # Bind mouse click event
 
     # License frame
-    license_frame = ttk.LabelFrame(
-        frame, text="MIT Gereral Public License", padding=(10, 5)
-    )
+    license_frame = ttk.LabelFrame(frame, text="MIT Gereral Public License", padding=(10, 5))
     license_frame.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
     ttk.Label(license_frame, text=f"{MIT_LICENSE}", justify="left").pack()
 
@@ -425,9 +411,7 @@ def about_app():
     button_frame.grid(row=5, column=0, columnspan=2, pady=10)
 
     # Donate and OK buttons side by side in the center
-    donate_button = ttk.Button(
-        button_frame, text="Donate", command=lambda: open_url(DONATE_URL)
-    )
+    donate_button = ttk.Button(button_frame, text="Donate", command=lambda: open_url(DONATE_URL))
     donate_button.pack(side=tk.LEFT, padx=5)
 
     ok_button = ttk.Button(button_frame, text="OK", command=about_window.destroy)
@@ -520,9 +504,7 @@ root.tk.call("wm", "iconphoto", root._w, icon)
 
 center_x = int(root.winfo_screenwidth() / 2 - APP_WIDTH / 2)
 center_y = int(root.winfo_screenheight() / 2 - APP_HEIGHT / 2)
-root.geometry(
-    f"{APP_WIDTH}x{APP_HEIGHT}+{center_x}+{center_y}"
-)  # Set default window size
+root.geometry(f"{APP_WIDTH}x{APP_HEIGHT}+{center_x}+{center_y}")  # Set default window size
 
 # Initialize the configuration file
 # create_default_config()
@@ -534,13 +516,9 @@ read_delay_var = tk.StringVar()
 show_time_stamp_var = tk.BooleanVar()
 
 config = load_configs()
-baud_rate_var.set(
-    config.get("Settings", "last_baud_rate", fallback=str(DEFAULT_BUAD_RATE))
-)
+baud_rate_var.set(config.get("Settings", "last_baud_rate", fallback=str(DEFAULT_BUAD_RATE)))
 save_path_var.set(config.get("Settings", "log_path", fallback=DEFAULT_LOG_PATH))
-read_delay_var.set(
-    config.get("Settings", "read_delay", fallback=str(DEFAULT_READ_DELAY))
-)
+read_delay_var.set(config.get("Settings", "read_delay", fallback=str(DEFAULT_READ_DELAY)))
 show_time_stamp_var.set(
     config.get("Settings", "show_timestamp", fallback=str(DEFAULT_SHOW_TIMESTAMP))
 )
